@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Win64", // 根据需要调整
+            "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/vender/**"
+                //"${workspaceFolder}/**" // 可选：用于递归查找
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "D:/Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c11", // 或 "c99"，根据需要
+            "cppStandard": "c++17", // 根据需要
+            "intelliSenseMode": "${default}" // 根据实际情况调整
+        }
+    ],
+    "version": 4
+}

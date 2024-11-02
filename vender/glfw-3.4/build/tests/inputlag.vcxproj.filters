@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\_WORKSPACE\dev\MyGL\vender\glfw-3.4\tests\inputlag.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\_WORKSPACE\dev\MyGL\vender\glfw-3.4\deps\getopt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\_WORKSPACE\dev\MyGL\vender\glfw-3.4\deps\getopt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\_WORKSPACE\dev\MyGL\vender\glfw-3.4\deps\glad\gl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\_WORKSPACE\dev\MyGL\vender\glfw-3.4\tests\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{F950CDAB-8DC6-31CB-BF9A-32E28A4683BD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{C198C346-BB4E-3B43-8A1E-D39E78F7ED57}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

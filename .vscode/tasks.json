@@ -1,0 +1,77 @@
+{
+    "version": "2.0.0",
+     
+    "windows": {
+        "options": {
+            "shell": {
+            "executable": "cmd.exe",
+            "args": [
+                "/C",
+                // The path to VsDevCmd.bat depends on the version of Visual Studio you have installed.
+                "vcvarsall.bat",
+                "x64",
+                "&&"
+            ]
+            }
+        }
+     },
+
+    "tasks": [
+        {
+            "label": "cmake build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}\\vender\\glfw-3.4\\build", // 指向构建目录
+                "--config",
+                "Debug" // 或 "Release"，根据需要
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "cmake configure",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "${workspaceFolder}\\vender\\glfw-3.4",
+                "-B",
+                "${workspaceFolder}\\vender\\glfw-3.4\\build", // 指定构建目录
+                "-G",
+                "Visual Studio 17 2022" // 指定生成器
+            ],
+            "group": "none"
+        },
+        {
+            "label": "build_MyGL",
+            "type": "shell",
+            "command": "cl.exe",
+            "args": [
+                "/EHsc",
+                "/Fe:${workspaceFolder}\\build\\MyGL.exe", // 输出文件路径
+                "/Fo:${workspaceFolder}\\build\\",  // 编译中间文件路径
+                "/I${workspaceFolder}\\include",
+                "/I${workspaceFolder}\\vender\\glfw-3.4\\include",
+                "/I${workspaceFolder}\\vender\\glad\\include",
+                "${workspaceFolder}\\src\\*.cpp", // 源文件
+                "${workspaceFolder}\\vender\\glad\\src\\glad.c", // 库源文件
+                //"/MDd", // 使用动态链接库
+                "/link", // 链接库
+                "${workspaceFolder}\\vender\\glfw-3.4\\build\\src\\Debug\\glfw3.lib", 
+                // 必须的Window SDK库
+                "gdi32.lib",
+                "user32.lib",
+                "shell32.lib",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$msCompile"]
+        }
+    ]
+}
