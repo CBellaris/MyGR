@@ -52,14 +52,14 @@
             "command": "cl.exe",
             "args": [
                 "/EHsc",
-                "/Fe:${workspaceFolder}\\build\\MyGL.exe", // 输出文件路径
+                "/Fe:${workspaceFolder}\\build\\MyGR.exe", // 输出文件路径
                 "/Fo:${workspaceFolder}\\build\\",  // 编译中间文件路径
                 "/I${workspaceFolder}\\include",
                 "/I${workspaceFolder}\\vender\\glfw-3.4\\include",
                 "/I${workspaceFolder}\\vender\\glad\\include",
                 "${workspaceFolder}\\src\\*.cpp", // 源文件
                 "${workspaceFolder}\\vender\\glad\\src\\glad.c", // 库源文件
-                //"/MDd", // 使用动态链接库
+                "/MDd", // 使用动态链接库(uncheck reason)
                 "/link", // 链接库
                 "${workspaceFolder}\\vender\\glfw-3.4\\build\\src\\Debug\\glfw3.lib", 
                 // 必须的Window SDK库
