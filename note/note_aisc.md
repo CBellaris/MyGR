@@ -1,7 +1,15 @@
-### 
+### new
+```c++
+int size;
+std::cin >> size;
+int* arr = new int[size]; // 创建动态长度的数组
 
+// 使用数组
+// ...
+
+delete[] arr; // 释放内存
+```
 ### 指针的指针
-
 #### 修改指针本身
 
 如果你需要在函数内部改变一个指针的指向（例如，重新分配内存或改变指针所指向的对象），可以使用双指针。例如：
@@ -66,6 +74,24 @@ int main() {
 
     return 0;
 }
+```
+
+#### 接收可变长度字符串
+```c++
+// 这里的const GLchar *const *string是一个双指针
+void glShaderSource(GLuint shader, GLsizei count, const GLchar *const *string, const GLint *length)
+
+// shaderSource是一个数组，其中每一个元素都是一个指向字符的指针
+const char* shaderSource[] = {
+    "#version 330 core\n",
+    "void main() {\n",
+    "    // Shader code here\n",
+    "}\n"
+};
+// Hint: C++的字符串末尾自动添加'\0'以标示结尾
+
+// 调用 glShaderSource
+glShaderSource(shader, 4, shaderSource, nullptr);
 ```
 
 ### typedef
