@@ -52,6 +52,8 @@
             "command": "cl.exe",
             "args": [
                 "/EHsc",
+                "/Zi", // 需要调试时启用
+                //"/Od", // 禁用优化，确保断点准确
                 "/Fe:${workspaceFolder}\\build\\MyGR.exe", // 输出文件路径
                 "/Fo:${workspaceFolder}\\build\\",  // 编译中间文件路径
                 "/I${workspaceFolder}\\include",

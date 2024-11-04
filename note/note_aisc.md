@@ -1,3 +1,5 @@
+### 
+
 ### 指针的指针
 
 #### 修改指针本身
@@ -370,16 +372,28 @@ int main()
 
 
 
-### enum
+### 枚举类
+建议都使用枚举类，有较高的类型安全和作用域控制
+```c++
+enum class Color {
+    Red,
+    Green,
+    Blue
+};
 
-``` 
-enum Example : unsigned int
-{
- A = 0;
- B = 1;
- C = 2;
+int main() {
+    Color myColor = Color::Green;  // 需要使用 Color:: 前缀
+    int colorValue = static_cast<int>(myColor);  // 显式转换为整数
+    return 0;
 }
-
+```
+也可以显示的指定类型的值：
+```c++
+enum class Color {
+    Red = 1,
+    Green = 2,
+    Blue = 3
+};
 ```
 
 普通枚举类名不能作为命名空间

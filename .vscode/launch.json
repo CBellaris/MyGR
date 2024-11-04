@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++ Debug (MSVC)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\build\\MyGR.exe", // 替换为生成的可执行文件路径
+            "args": [], // 启动时传递给程序的参数
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [], // 用于传递环境变量。可以为空或定义环境变量列表
+            "console": "integratedTerminal", // 使用集成终端显示输出
+            "preLaunchTask": "build_MyGL" // 设置为自动编译任务的名称
+        }
+    ]
+}

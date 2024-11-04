@@ -1,6 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
 
 static void processInput(GLFWwindow *window)
 {
@@ -14,7 +18,44 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-// 两个函数用于处理shader
+// 下面三个函数用于处理shader
+static std::vector<std::stringstream> ParseShader(const std::string& filepath)
+{
+    std::ifstream stream(filepath);
+
+    enum class ShaderType
+    {
+        NONE = -1,
+        VERTEX = 0,
+        FRAGMENT = 1
+    };
+
+    ShaderType type = ShaderType::NONE;
+    std::string line;
+    std::vector<std::stringstream> ss(2);
+    while(getline(stream, line))
+    {
+        if(line.find("#shader") != std::string::npos)
+        {
+            if(line.find("vertex") != std::string::npos)
+            {
+                type = ShaderType::VERTEX;
+            }
+            else if(line.find("fragment") != std::string::npos)
+            {
+                type = ShaderType::FRAGMENT;
+            }
+        }
+        else
+        {
+            ss[static_cast<int>(type)] << line << '\n';
+        }
+    }
+
+    return ss;
+}
+
+
 static unsigned int CompileShader(unsigned int type, const std::string& source)
 {
     unsigned int id = glCreateShader(type);
@@ -112,25 +153,34 @@ int main(void)
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // 指定属性的格式(第几个属性，包含几个数据，数据类型，是否标准化，一个顶点的步长，到下一个属性的指针)
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, 0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (const void*)0);
     // 启用
     glEnableVertexAttribArray(0);
+
+    // 创建shader
+    auto shadersCode = ParseShader("res/shader/Basic.shader");
+    std::string vertexShaderCode = shadersCode[0].str();
+    std::string fragmentShaderCode = shadersCode[1].str();
+
+    unsigned int shader = CreateShader(vertexShaderCode, fragmentShaderCode);
+    glUseProgram(shader);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        glClearColor(0.0f, 0.0f, 0.0f, 0.8f);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
         processInput(window);
-
-
         // 检查并调用事件，交换缓冲
         glfwPollEvents();
         glfwSwapBuffers(window);
         
     }
+    glDeleteProgram(shader);
 
     glfwTerminate();
     return 0;
