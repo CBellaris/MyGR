@@ -1,3 +1,46 @@
+### 函数返回多个值
+
+### 模板类的自动构造与完美转发（Perfect Forwarding）
+```cpp
+#include <iostream>
+#include <vector>
+#include <string>
+
+template <typename T>
+class MyClass {
+private:
+    T value;
+
+public:
+    // 模板构造函数，通过传入的值自动推导类型
+    template <typename U>
+    MyClass(U&& val) : value(std::forward<U>(val)) {
+        std::cout << "Constructor called with value: " << value << std::endl;
+    }
+
+    void display() {
+        std::cout << "Stored value: " << value << std::endl;
+    }
+};
+
+int main() {
+    // 通过传递不同类型的值来创建 MyClass 对象，构造函数自动推导类型
+    MyClass obj1(10);         // 类型为 int
+    obj1.display();
+
+    MyClass obj2(3.14);       // 类型为 double
+    obj2.display();
+
+    MyClass obj3("Hello");    // 类型为 const char*
+    obj3.display();
+
+    MyClass obj4(std::vector<int>{1, 2, 3}); // 类型为 std::vector<int>
+    obj4.display();
+
+    return 0;
+}
+
+```
 ### 数组作为参数
 如果使用原生数组，并且数组大小不是编译时已知，那传递数组大小参数是不可避免的
 ```cpp
@@ -27,7 +70,8 @@ void myFunction(int (&arr)[N]) {
 }
 ```
 
-```
+使用模板vector
+```cpp
 #include <vector>
 #include <iostream>
 
