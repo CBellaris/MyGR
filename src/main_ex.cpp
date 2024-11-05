@@ -198,6 +198,9 @@ int main(void)
     // 创建shader
     unsigned int shader = CreateShader(vertexShaderCode, fragmentShaderCode);
 
+    //绘制前绑定VAO和shader
+    glUseProgram(shader);
+    glBindVertexArray(VAO);
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -205,8 +208,6 @@ int main(void)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shader);
-        glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         processInput(window);

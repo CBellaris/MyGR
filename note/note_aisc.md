@@ -1,3 +1,45 @@
+### 数组作为参数
+如果使用原生数组，并且数组大小不是编译时已知，那传递数组大小参数是不可避免的
+```cpp
+void myFunction(int* arr, int size) {
+    for (int i = 0; i < size; i++) {
+        // 处理数组元素
+    }
+}
+```
+可以使用 std::vector，可以在不传递大小参数的情况下直接获取数组大小
+```cpp
+#include <vector>
+
+void myFunction(std::vector<int>& arr) {
+    for (int i = 0; i < arr.size(); i++) {
+        // 处理数组元素
+    }
+}
+```
+模板函数： 可以使用模板函数来让编译器推导数组的大小信息：
+```cpp
+template <size_t N>
+void myFunction(int (&arr)[N]) {
+    for (size_t i = 0; i < N; i++) {
+        // 处理数组元素
+    }
+}
+```
+
+```
+#include <vector>
+#include <iostream>
+
+template <typename T>
+void myFunction(const std::vector<T>& vec) {
+    for (const T& element : vec) {
+        std::cout << element << " ";
+    }
+    std::cout << std::endl;
+}
+```
+
 ### new
 ```c++
 int size;
