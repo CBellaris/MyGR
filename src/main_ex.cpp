@@ -6,6 +6,8 @@
 #include <sstream>
 #include <vector>
 
+#include "BufferObject.h"
+
 static void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -91,6 +93,8 @@ static unsigned int CreateShader(const std::string& VertexShader, const std::str
     glAttachShader(program, fs);
     glLinkProgram(program);
     glValidateProgram(program);
+
+    //获取链接异常
     int isLinked;
     glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
     if (isLinked == GL_FALSE) 
@@ -151,15 +155,15 @@ int main(void)
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // 定义顶点数据
-    float vertices[] = {
-    -0.5f, -0.5f,
-     0.5f, -0.5f,
-     0.5f,  0.5f,
-     -0.5f,  0.5f
+    std::vector<float> vertices = {
+        -0.5f,-0.5f,
+        0.5f, -0.5f,
+        0.5f,  0.5f,
+        -0.5f, 0.5f
     };
 
     // 定义索引数组
-    unsigned int indices[] = {
+    std::vector<unsigned int> indices = {
         0, 1, 2,
         2, 3, 0
     };
@@ -171,7 +175,10 @@ int main(void)
     // 绑定VAO以记录VBO，IBO和数据layout
     glBindVertexArray(VAO);
 
+    VertexBuffer vb = VertexBuffer(vertices);
+    IndexBuffer ib = IndexBuffer(indices);
     
+
     // 指定属性的格式(第几个属性，包含几个数据，数据类型，是否标准化，一个顶点的步长，到下一个属性的指针)
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (const void*)0);
     // 启用
@@ -209,9 +216,6 @@ int main(void)
     }
     glDeleteProgram(shader);
     glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &IBO);
-
 
     glfwTerminate();
     return 0;

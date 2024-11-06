@@ -334,7 +334,7 @@ int main() {
 ### 模板特化(Template Specialization)
 
 函数模板的特化：当函数模板需要对某些类型进行特别处理，称为函数模板的特化。例如：
-
+```cpp
 ​     template <class T>
 1    bool IsEqual(T t1, T t2)
 2    {
@@ -349,12 +349,16 @@ int main() {
 11        cout << IsEqual(str1, str2) << endl;  //输出0
 12        return 0;
 13   }
+```
 代码11行比较字符串是否相等。由于对于传入的参数是char *类型的，max函数模板只是简单的比较了传入参数的值，即两个指针是否相等，因此这里打印0。显然，这与我们的初衷不符。因此，max函数模板需要对char *类型进行特别处理，即特化：
+```cpp
 1     template <>
 2    bool IsEqual(char* t1, char* t2)      //函数模板特化
 3    {
 4         return strcmp(t1, t2) == 0;
 5    }
+```
+可以将模板类型作为一个参数：
 
 
 

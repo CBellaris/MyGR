@@ -61,3 +61,26 @@ int main() {
 glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
 ```
 
+## 附录
+### 1
+一个VAO可以绑定多个VBO和一个IBO，绑定后可以直接修改VBO和IBO的数据。但一般来说不解绑VBO和IBO，如果你需要更改顶点数据的布局（例如，添加一个新的顶点属性或更改属性格式），直接创建新的VAO
+
+### 2
+glVertexAttribPointer 的第四个参数 GL_FALSE 或 GL_TRUE 用于指定是否将数据标准化。这个参数的作用在于，当顶点属性数据传递到着色器时，OpenGL 是否对其进行标准化处理。
+
+**具体含义**
+GL_FALSE：表示数据不标准化，按原值传递到着色器。
+
+例如，如果数据类型是 GL_FLOAT，数据将按原样传递，不做任何更改。
+如果数据类型是 GL_INT 或 GL_UNSIGNED_INT 等整数类型，同样按原值传递。
+GL_TRUE：表示数据标准化，即将数据按类型的范围映射到 [0.0, 1.0]（无符号类型）或 [-1.0, 1.0]（有符号类型）。
+
+如果数据类型是 GL_BYTE、GL_SHORT 等，则会根据它们的最小值和最大值进行映射。
+例如，对于 GL_UNSIGNED_BYTE 类型的数据，范围 [0, 255] 将映射到 [0.0, 1.0]。
+对于 GL_BYTE 类型的数据，范围 [-128, 127] 将映射到 [-1.0, 1.0]
+
+### 3
+GLuint和GL_UNSIGNED_INT
+它们的值相同，但在代码中最好按语义进行区分，以避免混淆。比如：
+使用 GLuint 来声明 OpenGL 对象的 ID 或句柄。
+使用 GL_UNSIGNED_INT 来指定 OpenGL API 中的数据类型（例如 glVertexAttribPointer 等函数的参数）
