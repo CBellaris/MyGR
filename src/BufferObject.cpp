@@ -49,3 +49,52 @@ inline unsigned int IndexBuffer::getCount() const
 
 //-------------------------------------------------
 
+VertexArrayObject::VertexArrayObject()
+{
+    // 创建顶点数组对象(Vertex Array Object, VAO)
+    glGenVertexArrays(1, &m_RendererID);
+    glBindVertexArray(m_RendererID);
+}
+
+VertexArrayObject::~VertexArrayObject()
+{
+    delete vb;
+    delete ib;
+    glDeleteVertexArrays(1, &m_RendererID);
+}
+
+void VertexArrayObject::addIndexBuffer(const std::vector<unsigned int>& data)
+{
+    ib = new IndexBuffer(data);
+}
+
+void VertexArrayObject::setLayout()
+{
+    const std::vector<BufferLayoutElement>& elements = m_Layout.getElement();
+    unsigned int offset = 0;
+    for(int i = 0; i < elements.size(); i++)
+    {
+        const auto& element = elements[i];
+        // 启用属性
+        glEnableVertexAttribArray(i);
+        // 指定属性的格式(第几个属性，包含几个数据，数据类型，是否标准化，一个顶点的步长，到下一个属性的指针)
+        glVertexAttribPointer(i, element.count, element.type, element.normalized, m_Layout.getStride(), (const void*)offset);
+        offset += sizeof(element.type) * element.count;
+    }
+}
+
+void VertexArrayObject::bindAll()
+{
+    setLayout();
+    glBindVertexArray(0);
+}
+
+void VertexArrayObject::bind()
+{
+    glBindVertexArray(m_RendererID);
+}
+
+void VertexArrayObject::unbind()
+{
+    glBindVertexArray(0);
+}

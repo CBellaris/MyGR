@@ -1,3 +1,75 @@
+### 悬空引用
+如果将一个临时变量的引用传递给类的构造函数，并用它来初始化类的私有成员后，该成员仍然引用了这个临时变量。而临时变量在离开作用域后就会被销毁，导致类的成员引用变成了悬空引用（dangling reference）。当类实例尝试访问这个成员时，就可能出现未定义行为，导致程序崩溃或出现意外的结果
+
+传入参数时依旧注意引用以防止不必要的复制，但不要将类的成员设置为引用：
+```cpp
+// std::string m_FilePath;
+// 而不是std::string& m_FilePath;
+
+Shader::Shader(const std::string& filepath): m_FilePath(filepath), m_Program(0);
+```
+
+### 为编辑器添加提示信息
+```
+/**
+ * @brief 获取布局中的所有元素。
+ * @return 一个常量引用，包含布局中的所有 BufferLayoutElement 元素。
+ */
+```
+@brief：简短描述函数的功能。
+@param：描述参数的名称和功能。
+@tparam：说明模板参数的用途。
+@return：描述返回值（如果有）
+
+### 在类A中管理类B
+1. 直接定义类B的实例（成员变量）
+注意这样类B会在A之前构造，如果类B的构造函数有参数，那么类A的构造函数必须包含此参数，且通过成员初始化列表初始化B
+2. 使用指针管理类B
+```cpp
+class B {
+public:
+    B() { std::cout << "B constructed\n"; }
+    ~B() { std::cout << "B destructed\n"; }
+};
+
+class A {
+private:
+    B* b;  // 使用指针管理类B
+public:
+    A() { b = new B(); std::cout << "A constructed\n"; }
+    ~A() { delete b; std::cout << "A destructed\n"; }
+};
+
+int main() {
+    A a;  // A会创建并管理B
+    return 0;
+}
+```
+3. 使用智能指针（推荐）
+为了避免手动管理内存和潜在的内存泄漏问题，可以使用 std::unique_ptr 或 std::shared_ptr 来管理类B的实例。std::unique_ptr 表示类B的唯一所有权，而 std::shared_ptr 则允许多个所有者
+```cpp
+#include <memory>
+
+class B {
+public:
+    B() { std::cout << "B constructed\n"; }
+    ~B() { std::cout << "B destructed\n"; }
+};
+
+class A {
+private:
+    std::unique_ptr<B> b;  // 使用unique_ptr管理类B
+public:
+    A() : b(std::make_unique<B>()) { std::cout << "A constructed\n"; }
+    ~A() { std::cout << "A destructed\n"; }
+};
+
+int main() {
+    A a;  // A会创建并自动管理B
+    return 0;
+}
+```
+
 ### 函数返回多个值
 
 ### 模板类的自动构造与完美转发（Perfect Forwarding）
@@ -482,9 +554,14 @@ int main()
 
 ### static
 
-在类/结构体外，该变量（函数）仅在本编译单元中被识别，无法通过extern来引用
+1. 静态局部变量：
+在函数内部定义的静态变量会在第一次执行到该变量声明时初始化，并且在整个程序运行期间都存在。这意味着它的生命周期超过了函数调用的范围，但是作用域仍然限制在声明它的函数内
+2. 静态全局变量/函数：
+当在文件作用域（即不在任何函数或类内部）声明一个变量或函数为static时，这会限制其作用域仅限于声明它的文件。也就是说，其他源文件中的代码无法通过外部链接访问到这个变量或函数
+3. 静态类成员：
+类中的静态成员属于整个类而非类的某个特定对象。所有对象共享同一个静态成员的实例。静态数据成员必须在类定义之外初始化，而静态成员函数则可以直接通过类名调用，无需创建类的对象
 
-在函数内，该变量生命周期扩展到整个程序的生命期
+
 
 
 

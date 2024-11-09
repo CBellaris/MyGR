@@ -51,10 +51,11 @@
             "type": "shell",
             "command": "xcopy", 
             "args": [
-                "${workspaceFolder}\\res\\shader\\*", // 源路径
-                "${workspaceFolder}\\build\\res\\shader\\", // 目标路径
-                "/I",
-                "/Y"
+                "${workspaceFolder}\\res\\*", // 源路径
+                "${workspaceFolder}\\build\\res\\", // 目标路径
+                "/S",   // 递归复制所有子目录，包括空目录
+                "/I",   // 如果目标不存在，则假定目标必须是目录
+                "/Y"    // 覆盖已存在的文件而不提示
             ],
             "group": {
                 "kind": "build",
@@ -70,14 +71,17 @@
                 "/EHsc",
                 "/Zi", // 需要调试时启用
                 //"/Od", // 禁用优化，确保断点准确
+                "/source-charset:utf-8", // 修复字符集警告
                 "/Fe:${workspaceFolder}\\build\\MyGR.exe", // 输出文件路径
                 "/Fo:${workspaceFolder}\\build\\",  // 编译中间文件路径
                 "/Fd:${workspaceFolder}\\build\\", // 指定.pdb文件路径
                 "/I${workspaceFolder}\\include",
                 "/I${workspaceFolder}\\vender\\glfw-3.4\\include",
                 "/I${workspaceFolder}\\vender\\glad\\include",
+                "/I${workspaceFolder}\\vender\\stb_image",
                 "${workspaceFolder}\\src\\*.cpp", // 源文件
                 "${workspaceFolder}\\vender\\glad\\src\\glad.c", // 库源文件
+                "${workspaceFolder}\\vender\\stb_image\\stb_image.cpp", // 库源文件
                 "/MDd", // 使用动态链接库(uncheck reason)
                 "/link", // 链接库
                 "${workspaceFolder}\\vender\\glfw-3.4\\build\\src\\Debug\\glfw3.lib", 

@@ -1,6 +1,8 @@
 # include <glad/glad.h>
 # include <vector>
 
+namespace {
+
 class VertexBuffer
 {
 private:
@@ -56,51 +58,82 @@ public:
     VertexBufferLayout(): m_Stride(0)
     {
     }
-    ~VertexBufferLayout();
+    ~VertexBufferLayout()
+    {
+    }
     
     template<typename T>
-    void push(int count)
+    void push(unsigned int count)
     {
         static_assert(sizeof(T) == 0, "push is not supported for this type");
     }
 
     template<>
-    void push<float>(int count)
+    void push<float>(unsigned int count)
     {   
         BufferLayoutElement element = {GL_FLOAT, count, GL_FALSE};
         m_Elements.push_back(element);
-        m_Stride += sizeof(GL_FLOAT);
+        m_Stride += count * sizeof(GL_FLOAT);
     }
 
-    void push<unsigned int>(int count)
+    template<>
+    void push<unsigned int>(unsigned int count)
     {   
         BufferLayoutElement element = {GL_UNSIGNED_INT, count, GL_FALSE};
         m_Elements.push_back(element);
-        m_Stride += sizeof(GL_UNSIGNED_INT);
+        m_Stride += count * sizeof(GL_UNSIGNED_INT);
     }
 
-    void push<unsigned char>(int count)
+    template<>
+    void push<unsigned char>(unsigned int count)
     {   
         BufferLayoutElement element = {GL_UNSIGNED_BYTE, count, GL_TRUE};
         m_Elements.push_back(element);
-        m_Stride += sizeof(GL_UNSIGNED_BYTE);
+        m_Stride += count * sizeof(GL_UNSIGNED_BYTE);
     }
 
     inline unsigned int getStride() const {return m_Stride;};
-    inline std::vector<BufferLayoutElement> getElement() const {return m_Elements;};
+    inline const std::vector<BufferLayoutElement>& getElement() const {return m_Elements;};
     
 };
+}
 
 class VertexArrayObject
 {
 private:
     unsigned int m_RendererID;
+    VertexBuffer* vb;
+    IndexBuffer* ib;
+    VertexBufferLayout m_Layout;
 
 public:
     VertexArrayObject();
     ~VertexArrayObject();
 
-    void BindVertexBuffer();
-    void BindIndexBuffer();
+    template<typename T>
+    void addVertexBuffer(const std::vector<T>& data)
+    {
+        vb = new VertexBuffer(data);
+    }
 
+    void addIndexBuffer(const std::vector<unsigned int>& data);
+
+
+    template<typename T>
+    void push(unsigned int count)
+    {
+        m_Layout.push<T>(count);
+    }
+
+    void setLayout();
+
+    /**
+    * @brief 调用完成对此VAO的绑定
+    */
+    void bindAll();
+
+
+    void bind();
+    void unbind();
+    
 };

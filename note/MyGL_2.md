@@ -11,20 +11,47 @@ glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 调用 glEnable 来启用调试输出，然后使用 glDebugMessageCallback 注册回调函数
 
 ```cpp
-复制代码
 #include <GL/glew.h>
 #include <iostream>
 
 // 调试消息回调函数
-void APIENTRY DebugCallback(GLenum source, GLenum type, GLuint id,
-                            GLenum severity, GLsizei length,
-                            const GLchar *message, const void *userParam) {
-    std::cout << "OpenGL Debug Message:\n";
-    std::cout << "Source: " << source << "\n";
-    std::cout << "Type: " << type << "\n";
-    std::cout << "ID: " << id << "\n";
-    std::cout << "Severity: " << severity << "\n";
-    std::cout << "Message: " << message << "\n\n";
+void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                               GLsizei length, const GLchar* message, const void* userParam) {
+    // 获取错误的源和类型信息
+    std::string sourceStr;
+    switch (source) {
+        case GL_DEBUG_SOURCE_API: sourceStr = "API"; break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM: sourceStr = "Window System"; break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: sourceStr = "Shader Compiler"; break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY: sourceStr = "Third Party"; break;
+        case GL_DEBUG_SOURCE_APPLICATION: sourceStr = "Application"; break;
+        case GL_DEBUG_SOURCE_OTHER: sourceStr = "Other"; break;
+    }
+
+    std::string typeStr;
+    switch (type) {
+        case GL_DEBUG_TYPE_ERROR: typeStr = "Error"; break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: typeStr = "Deprecated Behavior"; break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: typeStr = "Undefined Behavior"; break;
+        case GL_DEBUG_TYPE_PORTABILITY: typeStr = "Portability"; break;
+        case GL_DEBUG_TYPE_PERFORMANCE: typeStr = "Performance"; break;
+        case GL_DEBUG_TYPE_OTHER: typeStr = "Other"; break;
+    }
+
+    std::string severityStr;
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_HIGH: severityStr = "High"; break;
+        case GL_DEBUG_SEVERITY_MEDIUM: severityStr = "Medium"; break;
+        case GL_DEBUG_SEVERITY_LOW: severityStr = "Low"; break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION: severityStr = "Notification"; break;
+    }
+
+    // 打印出错误的详细信息
+    std::cout << "OpenGL Debug Message: " << std::endl;
+    std::cout << "  Source: " << sourceStr << std::endl;
+    std::cout << "  Type: " << typeStr << std::endl;
+    std::cout << "  Severity: " << severityStr << std::endl;
+    std::cout << "  Message: " << message << std::endl;
 }
 
 int main() {
@@ -36,7 +63,7 @@ int main() {
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);  // 确保调试信息立即输出
 
     // 注册调试回调函数
-    glDebugMessageCallback(DebugCallback, nullptr);
+    glDebugMessageCallback(debugCallback, nullptr);
 
     // 在需要的地方使用 OpenGL 函数
     // ...
@@ -45,7 +72,7 @@ int main() {
 }
 ```
 ### 回调函数的参数说明
-在 DebugCallback 函数中，各个参数的含义如下：
+在 debugCallback 函数中，各个参数的含义如下：
 
 - source：消息的来源（例如 GL_DEBUG_SOURCE_API 表示来自 API）
 - type：消息的类型（例如 GL_DEBUG_TYPE_ERROR 表示错误）。
@@ -55,10 +82,57 @@ int main() {
 ### 控制调试信息输出
 你可以使用 glDebugMessageControl 来过滤特定的消息类型，减少不必要的输出。
 
+### Hint
+在vscode中调试，需要添加调试配置，在创建.vscode/launch.json:
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++ Debug (MSVC)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\build\\MyGR.exe", // 替换为生成的可执行文件路径
+            "args": [], // 启动时传递给程序的参数
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [], // 用于传递环境变量。可以为空或定义环境变量列表
+            "console": "integratedTerminal", // 使用集成终端显示输出
+            "preLaunchTask": "build_MyGL" // 设置为自动编译任务的名称
+        }
+    ]
+}
+
+```
+同时注意往tasks.json的build_MyGL任务中添加参数以生成调试文件：
+```json
+"args": [
+                ...
+                "/Zi", // 需要调试时启用
+                //"/Od", // 禁用优化，确保断点准确
+                "/Fd:${workspaceFolder}\\build\\", // 指定.pdb文件路径
+                ...
+            ]
+```
+
+
 ```cpp
-复制代码
 // 只启用严重性为 HIGH 的调试信息
 glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
+```
+### 跟踪错误出现的行数
+定义宏，使用GL_CALL()包裹 每一个/可能出错的 OpenGL函数
+```cpp
+#define GL_CALL(func) \
+    func; \
+    checkGLError(__FILE__, __LINE__)
+
+void checkGLError(const char* file, int line) {
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        std::cerr << "OpenGL error at " << file << ":" << line << " - " << gluErrorString(error) << std::endl;
+    }
+}
 ```
 
 ## 附录
