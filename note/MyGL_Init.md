@@ -273,8 +273,9 @@ int main(void)
 ```
 
 ## 画一个正方形
-下面是一个用于绘制简单正方形的示例程序，包括创建VAO, VBO, IBO和shader，最后绑定它们并绘制两个三角形，原理部分对应LearnOpenGL的入门/你好，三角形
+下面是一个用于绘制简单正方形的示例程序，包括创建VAO, VBO, IBO和shader，最后绑定它们并绘制两个三角形，原理部分对应LearnOpenGL的入门/你好，三角形。可以
  ```c++
+ // main.cpp
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -296,6 +297,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 // 下面三个函数用于处理shader
+// 解析shader中的源码，分割为两个字符串，分别为vertex和fragment shader
 static std::vector<std::stringstream> ParseShader(const std::string& filepath)
 {
     std::ifstream stream(filepath);
@@ -332,7 +334,7 @@ static std::vector<std::stringstream> ParseShader(const std::string& filepath)
     return ss;
 }
 
-
+// 接受一段shader源码，将其编译
 static unsigned int CompileShader(unsigned int type, const std::string& source)
 {
     unsigned int id = glCreateShader(type);
@@ -358,6 +360,7 @@ static unsigned int CompileShader(unsigned int type, const std::string& source)
     return id;
 } 
 
+// 编译两个shader，并链接为一个程序
 static unsigned int CreateShader(const std::string& VertexShader, const std::string& FragmentShader)
 {
     unsigned int program = glCreateProgram();

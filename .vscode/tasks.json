@@ -76,6 +76,7 @@
                 "/Fo:${workspaceFolder}\\build\\",  // 编译中间文件路径
                 "/Fd:${workspaceFolder}\\build\\", // 指定.pdb文件路径
                 "/I${workspaceFolder}\\include",
+                "/I${workspaceFolder}\\vender",
                 "/I${workspaceFolder}\\vender\\glfw-3.4\\include",
                 "/I${workspaceFolder}\\vender\\glad\\include",
                 "/I${workspaceFolder}\\vender\\stb_image",

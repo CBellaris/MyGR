@@ -56,6 +56,9 @@
         "vector": "cpp",
         "list": "cpp",
         "unordered_map": "cpp",
-        "xhash": "cpp"
+        "xhash": "cpp",
+        "cstdarg": "cpp",
+        "functional": "cpp",
+        "iomanip": "cpp"
     }
 }

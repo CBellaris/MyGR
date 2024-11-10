@@ -7,6 +7,11 @@
 #include "BufferObject.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Mesh.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 static void processInput(GLFWwindow *window)
 {
@@ -107,32 +112,11 @@ int main(void)
     // 注册窗口大小变更回调函数
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    // 定义顶点数据
-    std::vector<float> vertices = {
-        -0.5f,-0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f,  0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, 0.0f, 1.0f
-    };
-
-    // 定义索引数组
-    std::vector<unsigned int> indices = {
-        0, 1, 2,
-        2, 3, 0
-    };
-
-
-    // 使用自定义的类，管理一个VAO，并绑定VBO和IBO
-    VertexArrayObject* VAO = new VertexArrayObject();
-    VAO->addVertexBuffer(vertices);
-    VAO->addIndexBuffer(indices);
-    VAO->push<float>(2);
-    VAO->push<float>(2);
-    VAO->bindAll();
+    Mesh* cube = new Mesh();
+    cube->setupMeshCube();
 
     // 读取shader源码
     Shader* shader = new Shader("res/shader/Basic.shader");
-    shader->setUniform4f("color_b", 0.1, 0.5, 0.7, 1.0);
 
     // 创建纹理
     Texture texture = Texture();
@@ -141,10 +125,8 @@ int main(void)
 
     //绘制前绑定VAO和shader
     shader->bind();
-    VAO->bind();
+    cube->bind();
 
-    float color_b = 0.7f;
-    float rate = 0.01f;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -152,23 +134,16 @@ int main(void)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        shader->setUniform4f("color_b", 0.1, 0.5, color_b, 1.0);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, cube->getNumElements(), GL_UNSIGNED_INT, 0);
 
         processInput(window);
         // 检查并调用事件，交换缓冲
         glfwPollEvents();
         glfwSwapBuffers(window);
 
-        color_b += rate;
-        if (color_b >= 1.0f)
-        {
-            color_b = 0.0f;
-        }
         
     }
 
-    delete VAO;
     delete shader;
     glfwTerminate();
     return 0;

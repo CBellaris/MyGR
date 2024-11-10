@@ -135,6 +135,9 @@ void checkGLError(const char* file, int line) {
 }
 ```
 
+## 将OpenGL函数抽象
+在前面我们已经
+
 ## 附录
 ### 1
 一个VAO可以绑定多个VBO和一个IBO，绑定后可以直接修改VBO和IBO的数据。但一般来说不解绑VBO和IBO，如果你需要更改顶点数据的布局（例如，添加一个新的顶点属性或更改属性格式），直接创建新的VAO

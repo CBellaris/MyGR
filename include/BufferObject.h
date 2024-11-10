@@ -1,5 +1,6 @@
-# include <glad/glad.h>
-# include <vector>
+#pragma once
+#include <glad/glad.h>
+#include <vector>
 
 namespace {
 
@@ -13,12 +14,12 @@ public:
     template <typename T>
     VertexBuffer(const std::vector<T>& data)
     {
-    size_t size = data.size() * sizeof(T);
-    // 创建顶点缓冲对象(Vertex Buffer Objects, VBO)
-    glGenBuffers(1, &m_RendererID);
-    glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);  
-    // 把用户定义的数据复制到当前绑定缓冲, GL_STATIC_DRAW ：数据不会或几乎不会改变; GL_DYNAMIC_DRAW：数据会被改变很多; GL_STREAM_DRAW ：数据每次绘制时都会改变
-    glBufferData(GL_ARRAY_BUFFER, size, data.data(), GL_STATIC_DRAW);
+        size_t size = data.size() * sizeof(T);
+        // 创建顶点缓冲对象(Vertex Buffer Objects, VBO)
+        glGenBuffers(1, &m_RendererID);
+        glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);  
+        // 把用户定义的数据复制到当前绑定缓冲, GL_STATIC_DRAW ：数据不会或几乎不会改变; GL_DYNAMIC_DRAW：数据会被改变很多; GL_STREAM_DRAW ：数据每次绘制时都会改变
+        glBufferData(GL_ARRAY_BUFFER, size, data.data(), GL_STATIC_DRAW);
     }
 
     ~VertexBuffer();
@@ -137,3 +138,28 @@ public:
     void unbind();
     
 };
+
+// 使用示例
+    // // 定义顶点数据
+    // std::vector<float> vertices = {
+    //     -0.5f,-0.5f, 0.0f, 0.0f,
+    //     0.5f, -0.5f, 1.0f, 0.0f,
+    //     0.5f,  0.5f, 1.0f, 1.0f,
+    //     -0.5f, 0.5f, 0.0f, 1.0f
+    // };
+
+    // // 定义索引数组
+    // std::vector<unsigned int> indices = {
+    //     0, 1, 2,
+    //     2, 3, 0
+    // };
+
+
+    // // 使用自定义的类，管理一个VAO，并绑定VBO和IBO
+    // VertexArrayObject* VAO = new VertexArrayObject();
+    // VAO->addVertexBuffer(vertices);
+    // VAO->addIndexBuffer(indices);
+    // VAO->push<float>(2);
+    // VAO->push<float>(2);
+    // VAO->bindAll();
+    // VAO->bind();
