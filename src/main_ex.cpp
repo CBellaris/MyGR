@@ -114,6 +114,7 @@ int main(void)
 
     Mesh* cube = new Mesh();
     cube->setupMeshCube();
+    cube->setRotation(glm::vec3(0.0f, 0.0f, 45.0f));
 
     // 读取shader源码
     Shader* shader = new Shader("res/shader/Basic.shader");
@@ -122,6 +123,9 @@ int main(void)
     Texture texture = Texture();
     texture.add_image("res/pic1.jpg");
     texture.bind(shader);
+
+    // 处理shader的全局变量
+    shader->setUniform4fv("aTransMatrix", cube->getModelMatrix());
 
     //绘制前绑定VAO和shader
     shader->bind();

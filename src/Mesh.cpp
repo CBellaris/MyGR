@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-Mesh::Mesh()
+Mesh::Mesh(): model(glm::mat4(1.0f)), position(0.0f), eulerAngles(0.0f), scale(1.0f)
 {
 }
 
@@ -86,3 +86,29 @@ void Mesh::unbind()
     VAO->unbind();
 }
 
+void Mesh::setPosition(const glm::vec3 &pos)
+{
+    position = pos;
+    updateModelMatrix();
+}
+
+void Mesh::setRotation(const glm::vec3& angles)
+{
+    eulerAngles = angles;
+    updateModelMatrix();
+}
+
+void Mesh::setScale(const glm::vec3& scl) 
+{
+    scale = scl;
+    updateModelMatrix();
+}
+
+void Mesh::updateModelMatrix() {
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, position);
+
+    glm::quat rotationQuat = glm::quat(glm::radians(eulerAngles)); // 将角度转换为弧度
+    model *= glm::toMat4(rotationQuat); // 使用四元数生成旋转矩阵
+    model = glm::scale(model, scale);
+}

@@ -43,14 +43,23 @@ int Shader::getUniformLocation(const std::string &name)
 
 void Shader::setUniform4f(const std::string &name, float v1, float v2, float v3, float v4)
 {
-    if (getUniformLocation(name) != -1)
-        glUniform4f(getUniformLocation(name), v1, v2, v3, v4);
+    int loc = getUniformLocation(name);
+    if (loc != -1)
+        glUniform4f(loc, v1, v2, v3, v4);
 }
 
-void Shader::setUniform1i(std::string &name, int v1)
+void Shader::setUniform1i(const std::string &name, int v1)
 {
-    if (getUniformLocation(name) != -1)
-        glUniform1i(getUniformLocation(name), v1);
+    int loc = getUniformLocation(name);
+    if (loc != -1)
+        glUniform1i(loc, v1);
+}
+
+void Shader::setUniform4fv(const std::string &name, glm::mat4 mat)
+{
+    int loc = getUniformLocation(name);
+    if (loc != -1)
+        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
 std::vector<std::stringstream> Shader::ParseShader()
