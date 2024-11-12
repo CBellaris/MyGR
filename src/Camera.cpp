@@ -1,100 +1,123 @@
 #include "Camera.h"
 
-Camera::Camera() : pos(glm::vec3(0.0f, 0.0f, 1.0f)), target(0.0f), up(glm::vec3(0.0f, 1.0f, 0.0f))
+Camera::Camera() : 
+    pos(glm::vec3(0.0f, 0.0f, 1.0f)), 
+    target(glm::vec3(0.0f)), 
+    up(glm::vec3(0.0f, 1.0f, 0.0f)), 
+    lockTarget(false),
+    fov(45.0f),
+    aspectRatio(4.0f / 3.0f),
+    nearPlane(0.1f),
+    farPlane(100.0f),
+    orthographic(false)
 {
     direction = glm::normalize(pos - target);
     cameraRight = glm::normalize(glm::cross(up, direction));
     cameraRight = glm::cross(direction, cameraRight);
+    updateViewMatrix();
+    updateProjectionMatrix();
 }
 
 Camera::~Camera()
 {
 }
 
-//------------------------------------------
-#include <optional>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
-class Camera
+
+
+void Camera::setCameraPosition(const glm::vec3& newPos)
 {
-private:
-    glm::vec3 pos;           // 摄像机位置
-    glm::vec3 target;        // 锁定的目标位置
-    glm::vec3 direction;     // 摄像机方向
-    glm::vec3 up;            // 世界空间中的上向量
-    glm::vec3 cameraRight;   // 摄像机的右向量
-    glm::vec3 cameraUp;      // 摄像机的上向量
-
-    glm::mat4 view;          // 视图矩阵
-
-    bool lockTarget;         // 判断是否锁定到目标
-
-    void updateViewMatrix()
+    pos = newPos;
+    if (lockTarget)
     {
-        // 使用 pos、direction、cameraUp 计算视图矩阵
-        view = glm::lookAt(pos, pos + direction, cameraUp);
+        direction = glm::normalize(target - pos);
     }
+    updateCameraVectors();
+}
 
-    void updateCameraVectors()
+void Camera::setCameraDirection(const glm::vec3& newDirection)
+{
+    lockTarget = false;
+    direction = glm::normalize(newDirection);
+    updateCameraVectors();
+}
+
+void Camera::setCameraLookAt(const std::optional<glm::vec3>& newTarget)
+{
+    if (!newTarget.has_value())
     {
-        // 更新摄像机的方向和上轴
-        if (lockTarget)
-        {
-            direction = glm::normalize(target - pos);
-        }
-        cameraRight = glm::normalize(glm::cross(up, direction));
-        cameraUp = glm::normalize(glm::cross(direction, cameraRight));
-        updateViewMatrix();
+        // 取消锁定
+        lockTarget = false;
     }
-
-public:
-    Camera()
-        : pos(glm::vec3(0.0f, 0.0f, 1.0f)), target(glm::vec3(0.0f)), up(glm::vec3(0.0f, 1.0f, 0.0f)), lockTarget(false)
+    else
     {
-        direction = glm::normalize(pos - target);
-        cameraRight = glm::normalize(glm::cross(up, direction));
-        cameraUp = glm::normalize(glm::cross(direction, cameraRight));
-        updateViewMatrix();
-    }
-
-    ~Camera() {}
-
-    void setCameraPosition(const glm::vec3& newPos)
-    {
-        pos = newPos;
-        if (!lockTarget)
-        {
-            direction = glm::normalize(pos - target);
-        }
+        // 锁定到新目标
+        target = newTarget.value();
+        lockTarget = true;
+        direction = glm::normalize(target - pos);
         updateCameraVectors();
     }
+}
 
-    void setCameraDirection(const glm::vec3& newDirection)
+void Camera::setPerspective(float newFov, float newAspectRatio, float newNearPlane, float newFarPlane)
+{
+    fov = newFov;
+    aspectRatio = newAspectRatio;
+    nearPlane = newNearPlane;
+    farPlane = newFarPlane;
+    orthographic = false;
+    updateProjectionMatrix();
+}
+
+void Camera::setOrthographic(float left, float right, float bottom, float top, float newNearPlane, float newFarPlane)
+{
+    nearPlane = newNearPlane;
+    farPlane = newFarPlane;
+    orthographic = true;
+    projectionMatrix = glm::ortho(left, right, bottom, top, nearPlane, farPlane);
+}
+
+void Camera::setProjectionMode(bool useOrthographic)
+{
+    orthographic = useOrthographic;
+    updateProjectionMatrix();
+}
+
+
+
+
+
+void Camera::updateViewMatrix()
+{
+    // 使用 pos、direction、cameraUp 计算视图矩阵
+    viewMatrix = glm::lookAt(pos, pos + direction, cameraUp);
+    updataViewProjectionMatrix();
+}
+
+void Camera::updateCameraVectors()
+{
+    // 更新摄像机的方向和上轴
+    cameraRight = glm::normalize(glm::cross(up, direction));
+    cameraUp = glm::normalize(glm::cross(direction, cameraRight));
+    updateViewMatrix();
+}
+
+void Camera::updateProjectionMatrix()
+{
+    if (orthographic)
     {
-        if (!lockTarget)
-        {
-            direction = glm::normalize(newDirection);
-            updateCameraVectors();
-        }
+        // Update orthographic projection (default bounds for simplicity)
+        projectionMatrix = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
     }
-
-    void setCameraLookAt(const std::optional<glm::vec3>& newTarget)
+    else
     {
-        if (!newTarget.has_value())
-        {
-            // 取消锁定
-            lockTarget = false;
-        }
-        else
-        {
-            // 锁定到新目标
-            target = *newTarget;
-            lockTarget = true;
-            direction = glm::normalize(target - pos);
-            updateCameraVectors();
-        }
+        // Update perspective projection
+        projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
     }
+    updataViewProjectionMatrix();
+}
 
-    inline const glm::mat4& getViewMatrix() const { return view; }
-};
+void Camera::updataViewProjectionMatrix()
+{
+    viewProjectionMatrix = projectionMatrix * viewMatrix;
+}

@@ -3,11 +3,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include "BufferObject.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "Mesh.h"
+#include "Camera.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -79,6 +81,7 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);  // 让我们的鼠标不会移动到窗口外
 
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(800, 600, "Hello World", NULL, NULL);
@@ -124,12 +127,17 @@ int main(void)
     texture.add_image("res/pic1.jpg");
     texture.bind(shader);
 
-    // 处理shader的全局变量
-    shader->setUniform4fv("aTransMatrix", cube->getModelMatrix());
+    // 创建摄像机
+    Camera* camera = new Camera();
+    camera->setCameraLookAt(glm::vec3(0.0f));
 
     //绘制前绑定VAO和shader
     shader->bind();
     cube->bind();
+
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.2f);
+    float degree = 0.0f;
+
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -138,12 +146,26 @@ int main(void)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        cameraPos.x = cos(degree);
+        cameraPos.y = sin(degree);
+        camera->setCameraPosition(cameraPos);
+
+        // 处理shader的全局变量
+        glm::mat4 transMatrix = camera->getViewMatrix() * cube->getModelMatrix();
+        shader->setUniform4fv("aTransMatrix", transMatrix);
+
         glDrawElements(GL_TRIANGLES, cube->getNumElements(), GL_UNSIGNED_INT, 0);
 
         processInput(window);
         // 检查并调用事件，交换缓冲
         glfwPollEvents();
         glfwSwapBuffers(window);
+
+        degree += 0.01;
+        if (degree>=360)
+        {
+            degree = 0.0f;
+        }
 
         
     }

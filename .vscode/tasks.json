@@ -68,6 +68,7 @@
             "type": "shell",
             "command": "cl.exe",
             "args": [
+                "/std:c++17",
                 "/EHsc",
                 "/Zi", // 需要调试时启用
                 //"/Od", // 禁用优化，确保断点准确

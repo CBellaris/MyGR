@@ -55,7 +55,7 @@ void Shader::setUniform1i(const std::string &name, int v1)
         glUniform1i(loc, v1);
 }
 
-void Shader::setUniform4fv(const std::string &name, glm::mat4 mat)
+void Shader::setUniform4fv(const std::string &name, glm::mat4& mat)
 {
     int loc = getUniformLocation(name);
     if (loc != -1)
