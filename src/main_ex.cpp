@@ -105,12 +105,12 @@ int main(void)
     // 启用调试输出
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);  // 确保调试信息立即输出
-
     // 注册调试回调函数
     glDebugMessageCallback(debugCallback, nullptr);
-
     // 定义视口大小
     glViewport(0, 0, 800, 600);
+    // 启用深度测试
+    glEnable(GL_DEPTH_TEST);
 
     // 注册窗口大小变更回调函数
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -145,13 +145,14 @@ int main(void)
         /* Render here */
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // 清除深度缓存
 
         cameraPos.x = cos(degree);
         cameraPos.y = sin(degree);
         camera->setCameraPosition(cameraPos);
 
         // 处理shader的全局变量
-        glm::mat4 transMatrix = camera->getViewMatrix() * cube->getModelMatrix();
+        glm::mat4 transMatrix = camera->getViewProjectionMatrix() * cube->getModelMatrix();
         shader->setUniform4fv("aTransMatrix", transMatrix);
 
         glDrawElements(GL_TRIANGLES, cube->getNumElements(), GL_UNSIGNED_INT, 0);
