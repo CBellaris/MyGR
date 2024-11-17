@@ -24,8 +24,9 @@ private:
     bool orthographic;
 
     glm::mat4 projectionMatrix;
-
     glm::mat4 viewProjectionMatrix;
+
+    float cameraSpeed;
 
 public:
     Camera();
@@ -42,6 +43,7 @@ public:
     inline const glm::mat4& getViewMatrix() const {return viewMatrix;}
     inline const glm::mat4& getViewProjectionMatrix() const {return viewProjectionMatrix;}
 
+    void processKey(bool Press_W, bool Press_A, bool Press_S, bool Press_D, float deltaTime);
 private:
     void updateViewMatrix();
     void updateCameraVectors();

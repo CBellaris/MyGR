@@ -15,10 +15,145 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+
+Camera camera();
+
+static void processInput(GLFWwindow *window);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                               GLsizei length, const GLchar* message, const void* userParam);
+
+
+int main(void)
+{
+    GLFWwindow* window;
+
+    /* Initialize the library */
+    if (!glfwInit())
+        return -1;
+
+    // 设置一些参数
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+    
+
+    /* Create a windowed mode window and its OpenGL context */
+    window = glfwCreateWindow(800, 600, "Hello World", NULL, NULL);
+    if (!window)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+
+    /* Make the window's context current */
+    glfwMakeContextCurrent(window);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);  // 让我们的鼠标不会移动到窗口外
+
+    // 加载glad
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+    
+
+    // 启用调试输出
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);  // 确保调试信息立即输出
+    // 注册调试回调函数
+    glDebugMessageCallback(debugCallback, nullptr);
+    // 定义视口大小
+    glViewport(0, 0, 800, 600);
+    // 启用深度测试
+    glEnable(GL_DEPTH_TEST);
+
+    
+    // 注册回调函数
+    // 注册窗口大小变更回调函数
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    Mesh* cube = new Mesh();
+    cube->setupMeshCube();
+    cube->setRotation(glm::vec3(0.0f, 0.0f, 45.0f));
+
+    // 读取shader源码
+    Shader* shader = new Shader("res/shader/Basic.shader");
+
+    // 创建纹理
+    Texture texture = Texture();
+    texture.add_image("res/pic1.jpg");
+    texture.bind(shader);
+
+    // 创建摄像机
+    Camera* camera = new Camera();
+    camera->setCameraLookAt(glm::vec3(0.0f));
+
+    //绘制前绑定VAO和shader
+    shader->bind();
+    cube->bind();
+
+
+    float deltaTime = 0.0f; // 当前帧与上一帧的时间差
+    float lastTime = 0.0f; // 上一帧的时间
+    float currentTime = 0.0f;
+
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
+    {
+        /* Render here */
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // 清除颜色和深度缓存
+
+        // 处理shader的全局变量
+        glm::mat4 transMatrix = camera->getViewProjectionMatrix() * cube->getModelMatrix();
+        shader->setUniform4fv("aTransMatrix", transMatrix);
+
+        glDrawElements(GL_TRIANGLES, cube->getNumElements(), GL_UNSIGNED_INT, 0);
+
+
+
+        currentTime = glfwGetTime();
+        deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
+
+        processInput(window);
+        // 检查并调用事件，交换缓冲
+        glfwPollEvents();
+        glfwSwapBuffers(window);
+
+        
+    }
+
+    delete shader;
+    glfwTerminate();
+    return 0;
+}
+
 static void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    bool Press_W = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+    bool Press_A = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+    bool Press_S = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+    bool Press_D = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+
+    camera->processKey(Press_W, Press_A, Press_S, Press_D, deltaTime);
+
+}
+
+// 键盘回调函数
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) 
+{
+    bool Press_W = (key == GLFW_KEY_W && action == GLFW_PRESS);
+    
+
 }
 
 // 回调函数，当窗口大小改变时，GLFW会调用这个函数，我们在这里同步改变OpenGL的视口大小
@@ -65,113 +200,4 @@ void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum seve
     std::cout << "  Type: " << typeStr << std::endl;
     std::cout << "  Severity: " << severityStr << std::endl;
     std::cout << "  Message: " << message << std::endl;
-}
-
-
-int main(void)
-{
-    GLFWwindow* window;
-
-    /* Initialize the library */
-    if (!glfwInit())
-        return -1;
-
-    // 设置一些参数
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);  // 让我们的鼠标不会移动到窗口外
-
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(800, 600, "Hello World", NULL, NULL);
-    if (!window)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-
-    // 加载glad
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-
-    // 启用调试输出
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);  // 确保调试信息立即输出
-    // 注册调试回调函数
-    glDebugMessageCallback(debugCallback, nullptr);
-    // 定义视口大小
-    glViewport(0, 0, 800, 600);
-    // 启用深度测试
-    glEnable(GL_DEPTH_TEST);
-
-    // 注册窗口大小变更回调函数
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    Mesh* cube = new Mesh();
-    cube->setupMeshCube();
-    cube->setRotation(glm::vec3(0.0f, 0.0f, 45.0f));
-
-    // 读取shader源码
-    Shader* shader = new Shader("res/shader/Basic.shader");
-
-    // 创建纹理
-    Texture texture = Texture();
-    texture.add_image("res/pic1.jpg");
-    texture.bind(shader);
-
-    // 创建摄像机
-    Camera* camera = new Camera();
-    camera->setCameraLookAt(glm::vec3(0.0f));
-
-    //绘制前绑定VAO和shader
-    shader->bind();
-    cube->bind();
-
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.2f);
-    float degree = 0.0f;
-
-
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {
-        /* Render here */
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // 清除深度缓存
-
-        cameraPos.x = cos(degree);
-        cameraPos.y = sin(degree);
-        camera->setCameraPosition(cameraPos);
-
-        // 处理shader的全局变量
-        glm::mat4 transMatrix = camera->getViewProjectionMatrix() * cube->getModelMatrix();
-        shader->setUniform4fv("aTransMatrix", transMatrix);
-
-        glDrawElements(GL_TRIANGLES, cube->getNumElements(), GL_UNSIGNED_INT, 0);
-
-        processInput(window);
-        // 检查并调用事件，交换缓冲
-        glfwPollEvents();
-        glfwSwapBuffers(window);
-
-        degree += 0.01;
-        if (degree>=360)
-        {
-            degree = 0.0f;
-        }
-
-        
-    }
-
-    delete shader;
-    glfwTerminate();
-    return 0;
 }

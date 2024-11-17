@@ -9,7 +9,8 @@ Camera::Camera() :
     aspectRatio(4.0f / 3.0f),
     nearPlane(0.1f),
     farPlane(100.0f),
-    orthographic(false)
+    orthographic(false),
+    cameraSpeed(0.2f)
 {
     direction = glm::normalize(pos - target);
     cameraRight = glm::normalize(glm::cross(up, direction));
@@ -31,8 +32,8 @@ void Camera::setCameraPosition(const glm::vec3& newPos)
     if (lockTarget)
     {
         direction = glm::normalize(target - pos);
+        updateCameraVectors();
     }
-    updateCameraVectors();
 }
 
 void Camera::setCameraDirection(const glm::vec3& newDirection)
@@ -83,9 +84,18 @@ void Camera::setProjectionMode(bool useOrthographic)
     updateProjectionMatrix();
 }
 
-
-
-
+void Camera::processKey(bool Press_W, bool Press_A, bool Press_S, bool Press_D, float deltaTime)
+{
+    if (Press_W)
+        pos += cameraSpeed * deltaTime * direction;
+    if (Press_A)
+        pos -= cameraSpeed * deltaTime * cameraRight;
+    if (Press_S)
+        pos -= cameraSpeed * deltaTime * direction;
+    if (Press_D)
+        pos += cameraSpeed * deltaTime * cameraRight;
+    updateViewMatrix();
+}
 
 void Camera::updateViewMatrix()
 {
