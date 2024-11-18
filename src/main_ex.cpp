@@ -10,16 +10,13 @@
 #include "Texture.h"
 #include "Mesh.h"
 #include "Camera.h"
+#include "InputManager.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 
-Camera camera();
-
-static void processInput(GLFWwindow *window);
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
                                GLsizei length, const GLchar* message, const void* userParam);
@@ -97,10 +94,16 @@ int main(void)
     shader->bind();
     cube->bind();
 
-
     float deltaTime = 0.0f; // 当前帧与上一帧的时间差
     float lastTime = 0.0f; // 上一帧的时间
     float currentTime = 0.0f;
+
+    // 处理键盘鼠标输入
+    InputManager& inputManager = InputManager::getInstance();
+    inputManager.setCamera(camera);
+    inputManager.setDeltaTime(&deltaTime);
+    glfwSetKeyCallback(window, InputManager::keyCallback);
+    glfwSetCursorPosCallback(window, InputManager::mouse_pos_callback);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -115,13 +118,11 @@ int main(void)
 
         glDrawElements(GL_TRIANGLES, cube->getNumElements(), GL_UNSIGNED_INT, 0);
 
-
-
         currentTime = glfwGetTime();
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
-        processInput(window);
+        inputManager.update(window);
         // 检查并调用事件，交换缓冲
         glfwPollEvents();
         glfwSwapBuffers(window);
@@ -130,31 +131,11 @@ int main(void)
     }
 
     delete shader;
+    delete cube;
     glfwTerminate();
     return 0;
 }
 
-static void processInput(GLFWwindow *window)
-{
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    bool Press_W = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
-    bool Press_A = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
-    bool Press_S = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
-    bool Press_D = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
-
-    camera->processKey(Press_W, Press_A, Press_S, Press_D, deltaTime);
-
-}
-
-// 键盘回调函数
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) 
-{
-    bool Press_W = (key == GLFW_KEY_W && action == GLFW_PRESS);
-    
-
-}
 
 // 回调函数，当窗口大小改变时，GLFW会调用这个函数，我们在这里同步改变OpenGL的视口大小
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

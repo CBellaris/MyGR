@@ -10,7 +10,8 @@ Camera::Camera() :
     nearPlane(0.1f),
     farPlane(100.0f),
     orthographic(false),
-    cameraSpeed(0.2f)
+    cameraSpeed(0.2f),
+    cameraSensitivity(0.001f)
 {
     direction = glm::normalize(pos - target);
     cameraRight = glm::normalize(glm::cross(up, direction));
@@ -89,11 +90,11 @@ void Camera::processKey(bool Press_W, bool Press_A, bool Press_S, bool Press_D, 
     if (Press_W)
         pos += cameraSpeed * deltaTime * direction;
     if (Press_A)
-        pos -= cameraSpeed * deltaTime * cameraRight;
+        pos += cameraSpeed * deltaTime * cameraRight;
     if (Press_S)
         pos -= cameraSpeed * deltaTime * direction;
     if (Press_D)
-        pos += cameraSpeed * deltaTime * cameraRight;
+        pos -= cameraSpeed * deltaTime * cameraRight;
     updateViewMatrix();
 }
 

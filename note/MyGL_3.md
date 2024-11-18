@@ -16,3 +16,142 @@
 我们首先创建一个基础的网格类Mesh，
 
 ### 四元数
+
+
+## 回调函数的设计
+如果我们想使用键盘回调函数，用于处理摄像机的移动：
+```cpp
+Camera* camera; 
+float deltaTime;
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) 
+{
+    bool Press_W = (key == GLFW_KEY_W && action == GLFW_PRESS);
+    bool Press_A = (key == GLFW_KEY_A && action == GLFW_PRESS);
+    bool Press_S = (key == GLFW_KEY_S && action == GLFW_PRESS);
+    bool Press_D = (key == GLFW_KEY_D && action == GLFW_PRESS);
+
+    camera->processKey(Press_W, Press_A, Press_S, Press_D, deltaTime);
+}
+
+int main() {
+    // 初始化 camera 和 deltaTime
+    camera = new Camera();
+    deltaTime = 0.0f;
+
+    // 初始化 GLFW
+    // ...
+
+    glfwSetKeyCallback(window, key_callback);
+
+    // 主循环
+    // ...
+}
+```
+由于我们需要在回调函数中使用camera类和deltaTime，所以一个最简单的方法是直接将其定义为全局变量，就如同上面的代码所做的，但这显然只适用与非常小型的项目。glfw提供了**用户指针**，可以解决这个问题，你可以使用 glfwSetWindowUserPointer() 函数为窗口对象设置一个用户指针，然后在回调函数中通过 glfwGetWindowUserPointer() 来获取它，将 camera 和其他需要的数据封装到一个结构体中，然后通过用户指针将这些数据传递给回调函数：
+```cpp
+struct AppData {
+    Camera* camera;
+    float* deltaTime;
+};
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) 
+{
+    // 获取用户指针
+    AppData* appData = static_cast<AppData*>(glfwGetWindowUserPointer(window));
+
+    // 从用户指针中获取 camera 和 deltaTime
+    Camera* camera = appData->camera;
+    float deltaTime = *(appData->deltaTime);
+
+    bool Press_W = (key == GLFW_KEY_W && action == GLFW_PRESS);
+    bool Press_A = (key == GLFW_KEY_A && action == GLFW_PRESS);
+    bool Press_S = (key == GLFW_KEY_S && action == GLFW_PRESS);
+    bool Press_D = (key == GLFW_KEY_D && action == GLFW_PRESS);
+
+    camera->processKey(Press_W, Press_A, Press_S, Press_D, deltaTime);
+}
+
+int main() {
+    Camera camera;
+    float deltaTime = 0.0f;
+
+    AppData appData = { &camera, &deltaTime };
+
+    // 初始化 GLFW
+    // ...
+
+    // 设置用户指针
+    glfwSetWindowUserPointer(window, &appData);
+    
+    // 设置键盘回调函数
+    glfwSetKeyCallback(window, key_callback);
+
+    // 主循环
+    // ...
+}
+```
+感觉已经不错了，但是这样还是会有一些额外的操作，想要更进一步包装整个逻辑，后续我们可以用一个InputManager类将类似camera的整个回调处理逻辑包含进去。
+将这些回调函数作为InputManager类的静态成员函数，这个类最好使用单例的设计模式。这样在回调函数中想读取或操作任何主函数中的变量，都可以通过InputManager类的接口传入
+```cpp  
+class InputManager {
+public:
+    static InputManager& getInstance() {
+        static InputManager instance; // 唯一的实例，局部静态变量，第一次调用时创建，线程安全
+        return instance;
+    }
+
+    // 删除拷贝构造函数和赋值运算符，防止其他人复制或赋值单例实例
+    InputManager(const InputManager&) = delete;
+    InputManager& operator=(const InputManager&) = delete;
+
+    // 设置 camera 和 deltaTime
+    void setCamera(Camera* cam) {
+        camera = cam;
+    }
+
+    void setDeltaTime(float* dt) {
+        deltaTime = dt;
+    }
+
+    static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) 
+    {
+        InputManager& instance = getInstance();  // 获取单例实例
+
+        if (instance.camera) {
+            bool Press_W = (key == GLFW_KEY_W && action == GLFW_PRESS);
+            bool Press_A = (key == GLFW_KEY_A && action == GLFW_PRESS);
+            bool Press_S = (key == GLFW_KEY_S && action == GLFW_PRESS);
+            bool Press_D = (key == GLFW_KEY_D && action == GLFW_PRESS);
+            
+            instance.camera->processKey(Press_W, Press_A, Press_S, Press_D, *(instance.deltaTime));
+        }
+    }
+
+private:
+    InputManager() = default; // 构造函数设为私有，确保不能外部实例化
+    Camera* camera = nullptr;
+    float* deltaTime = nullptr;
+};
+
+int main() {
+
+    InputManager& inputManager = InputManager::getInstance();
+    inputManager.setCamera(&camera);
+    inputManager.setDeltaTime(&deltaTime);
+
+    // 初始化 GLFW 和创建窗口
+    // ...
+
+    // 设置键盘回调
+    glfwSetKeyCallback(window, InputManager::keyCallback);
+
+    // 主循环
+    // ...
+    return 0;
+}
+
+```
+但是到这里我们运行程序会发现一个问题，按下按键摄像机会动一下，但是按住按键它不会持续移动，因为键盘处理回调函数只会在按下按键时被调用。想要处理按住按键这个操作，我们需要将处理逻辑移动至主函数的循环里，keyCallback就暂时留空，后面有需求再往里添加内容
+
+## Hint

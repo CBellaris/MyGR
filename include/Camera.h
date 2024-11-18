@@ -27,6 +27,7 @@ private:
     glm::mat4 viewProjectionMatrix;
 
     float cameraSpeed;
+    float cameraSensitivity;
 
 public:
     Camera();
@@ -44,6 +45,8 @@ public:
     inline const glm::mat4& getViewProjectionMatrix() const {return viewProjectionMatrix;}
 
     void processKey(bool Press_W, bool Press_A, bool Press_S, bool Press_D, float deltaTime);
+
+    inline const float getCameraSensitivity() const {return cameraSensitivity;}
 private:
     void updateViewMatrix();
     void updateCameraVectors();
