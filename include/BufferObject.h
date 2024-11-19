@@ -43,6 +43,7 @@ public:
 };
 
 
+
 struct BufferLayoutElement
 {
     unsigned int type;
@@ -50,6 +51,7 @@ struct BufferLayoutElement
     bool normalized;
 };
 
+// 用于管理顶点数据的排列结构
 class VertexBufferLayout
 {
 private:
@@ -129,7 +131,7 @@ public:
     void setLayout();
 
     /**
-    * @brief 调用完成对此VAO的绑定
+    * @brief 调用以完成对此VAO的绑定
     */
     void bindAll();
 
@@ -163,3 +165,5 @@ public:
     // VAO->push<float>(2);
     // VAO->bindAll();
     // VAO->bind();
+
+    

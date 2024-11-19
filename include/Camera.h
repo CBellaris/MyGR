@@ -47,6 +47,7 @@ public:
     void processKey(bool Press_W, bool Press_A, bool Press_S, bool Press_D, float deltaTime);
 
     inline const float getCameraSensitivity() const {return cameraSensitivity;}
+    inline const glm::vec3 getCameradirection() const {return direction;}
 private:
     void updateViewMatrix();
     void updateCameraVectors();

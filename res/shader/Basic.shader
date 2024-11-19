@@ -1,3 +1,9 @@
+// 基础shader
+// 顶点数据：位置，法线，纹理坐标
+// 变换矩阵(透视*摄像机*模型)
+
+// 纹理texture1
+
 #shader vertex
 #version 460 core
 layout (location = 0) in vec3 aPos;

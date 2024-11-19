@@ -104,7 +104,13 @@ void Mesh::setScale(const glm::vec3& scl)
     updateModelMatrix();
 }
 
-void Mesh::updateModelMatrix() {
+void Mesh::render()
+{
+    glDrawElements(GL_TRIANGLES, getNumElements(), GL_UNSIGNED_INT, 0);
+}
+
+void Mesh::updateModelMatrix()
+{
     model = glm::mat4(1.0f);
     model = glm::translate(model, position);
 

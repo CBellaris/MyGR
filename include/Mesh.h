@@ -60,6 +60,8 @@ public:
         return model;
     }
 
+    void render();
+
 private:
     // 更新模型矩阵
     void updateModelMatrix();

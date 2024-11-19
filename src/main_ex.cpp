@@ -69,8 +69,6 @@ int main(void)
     // 启用深度测试
     glEnable(GL_DEPTH_TEST);
 
-    
-    // 注册回调函数
     // 注册窗口大小变更回调函数
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -78,7 +76,7 @@ int main(void)
     cube->setupMeshCube();
     cube->setRotation(glm::vec3(0.0f, 0.0f, 45.0f));
 
-    // 读取shader源码
+    // 创建shader
     Shader* shader = new Shader("res/shader/Basic.shader");
 
     // 创建纹理
@@ -99,7 +97,7 @@ int main(void)
     float currentTime = 0.0f;
 
     // 处理键盘鼠标输入
-    InputManager& inputManager = InputManager::getInstance();
+    InputManager& inputManager = InputManager::getInstance(); // 单例类
     inputManager.setCamera(camera);
     inputManager.setDeltaTime(&deltaTime);
     glfwSetKeyCallback(window, InputManager::keyCallback);
@@ -116,7 +114,7 @@ int main(void)
         glm::mat4 transMatrix = camera->getViewProjectionMatrix() * cube->getModelMatrix();
         shader->setUniform4fv("aTransMatrix", transMatrix);
 
-        glDrawElements(GL_TRIANGLES, cube->getNumElements(), GL_UNSIGNED_INT, 0);
+        cube->render();
 
         currentTime = glfwGetTime();
         deltaTime = currentTime - lastTime;

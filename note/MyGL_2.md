@@ -1,3 +1,41 @@
+## 封装渲染流程
+通过前面的步骤，我们已经搭建好了环境，并运行了一段简单的主程序绘制了一个正方形。为了创建一个渲染器，需要将与绘制相关的操作都用类封装起来，例如创建VAO, VBO, IBO这些缓冲对象，编译着色器等操作。接下来几个章节，我会基本按照LearnOpenGL教程的顺序，将渲染操作逐步封装进类中，并且提前引入实例化渲染（Instanced Rendering），Uniform Buffer Object (UBO) 等特性，这会对后续的高级效果开发带来便利
+
+接下的内容仅提及大概思路，详细的代码存档可以在。。。查看
+### BufferObject
+为了管理一组顶点数据，一般的流程是：绑定 VAO；绑定 VBO，并将顶点数据传入；通过 glVertexAttribPointer 函数来定义顶点属性；绑定 IBO 并将索引数据传入；解绑 VAO；后续想要使用这组数据来渲染时，再绑定VAO并渲染。也就是说我们以VAO为单位管理数据即可，这里当然还可以进一步管理，例如一个VAO其实可以绑定多个VBO和一个IBO，绑定后还可以修改VBO和IBO的数据，但这会增加太多复杂性，我们先用简单点的思路来编写BufferObject类，后续再来拓展，即对于一个创建完成的VAO，不解绑VBO和IBO，如果你需要更改顶点数据的布局（例如，添加一个新的顶点属性或更改属性格式），直接创建新的VAO
+
+BufferObject类可以这样使用：
+```cpp
+// 定义顶点数据
+std::vector<float> vertices = {
+    -0.5f,-0.5f, 0.0f, 0.0f,
+    0.5f, -0.5f, 1.0f, 0.0f,
+    0.5f,  0.5f, 1.0f, 1.0f,
+    -0.5f, 0.5f, 0.0f, 1.0f
+};
+// 定义索引数组
+std::vector<unsigned int> indices = {
+    0, 1, 2,
+    2, 3, 0
+};
+
+VertexArrayObject* VAO = new VertexArrayObject();
+VAO->addVertexBuffer(vertices);
+VAO->addIndexBuffer(indices);
+VAO->push<float>(2);
+VAO->push<float>(2);
+VAO->bindAll();
+// ...
+// 使用时绑定
+VAO->bind();
+
+### Shader
+先创建一个非常基础的Shader类，就是将上一节实例程序中读入、编译着色器的几个函数移动到类中，并提供接口来设置着色器程序中的全局变量，后续我们就能用几行代码来创建着色器程序：
+
+```
+
+
 ## 错误处理
 在早些的版本中，一般使用glGetError获取OpenGL函数的错误信息，在OpenGL 4.3或更新的版本中，提供了一种新的调试机制，`glDebugMessageCallback`
 ### 启用调试输出
@@ -81,7 +119,10 @@ int main() {
 - message：消息内容字符串，包含具体的错误或警告信息。
 ### 控制调试信息输出
 你可以使用 glDebugMessageControl 来过滤特定的消息类型，减少不必要的输出。
-
+```cpp
+// 只启用严重性为 HIGH 的调试信息
+glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
+```
 ### Hint
 在vscode中调试，需要添加调试配置，在创建.vscode/launch.json:
 ```json
@@ -116,12 +157,8 @@ int main() {
 ```
 
 
-```cpp
-// 只启用严重性为 HIGH 的调试信息
-glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
-```
 ### 跟踪错误出现的行数
-定义宏，使用GL_CALL()包裹 每一个/可能出错的 OpenGL函数
+通过前面的步骤，我们已经能看到比较详细的错误信息了，但还是不能很直观的看到错误的位置。想要进一步优化，可以通过定义宏，使用GL_CALL()包裹 每一个/可能出错的 OpenGL函数
 ```cpp
 #define GL_CALL(func) \
     func; \
@@ -135,12 +172,8 @@ void checkGLError(const char* file, int line) {
 }
 ```
 
-## 将OpenGL函数抽象
-在前面我们已经
 
 ## 附录
-### 1
-一个VAO可以绑定多个VBO和一个IBO，绑定后可以直接修改VBO和IBO的数据。但一般来说不解绑VBO和IBO，如果你需要更改顶点数据的布局（例如，添加一个新的顶点属性或更改属性格式），直接创建新的VAO
 
 ### 2
 glVertexAttribPointer 的第四个参数 GL_FALSE 或 GL_TRUE 用于指定是否将数据标准化。这个参数的作用在于，当顶点属性数据传递到着色器时，OpenGL 是否对其进行标准化处理。

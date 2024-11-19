@@ -11,7 +11,7 @@ Camera::Camera() :
     farPlane(100.0f),
     orthographic(false),
     cameraSpeed(0.2f),
-    cameraSensitivity(0.001f)
+    cameraSensitivity(0.3f)
 {
     direction = glm::normalize(pos - target);
     cameraRight = glm::normalize(glm::cross(up, direction));

@@ -1,14 +1,9 @@
 # 简介
 
-用于学习的渲染器
+用于学习的3D渲染器
 
-整个项目从学习OpenGL开始，网络上已经有非常多优质的教程，推荐一些：
-
-[TheCherno] OpenGL, https://www.youtube.com/watch?v=W3gAzLwfIP0&list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
-https://www.bilibili.com/video/BV1Ni4y1o7Au/?spm_id_from=333.788.videopod.episodes&vd_source=fe7a9ee6657422d709d30bf6284f347f&p=2
-
-[LearnOpenGL CN], https://learnopengl-cn.github.io/
-
+教程的前半部分，可以看做是对于OpenGL经典教程：[LearnOpenGL CN], https://learnopengl-cn.github.io/ 的实现和补充，不会再次提及教程中已经有的关于原理的内容，而会从编写一个渲染器的项目角度，梳理整个流程，补充一些我在开发过程中遇到的一些问题，包括但不限于：添加UI，
+后续：添加光线追踪
 ## 配置环境和项目搭建
 
 使用VScode作为主要的代码编辑器，安装VS可以不安装IDE，只安装构建工具即可
@@ -183,11 +178,11 @@ vender/文件夹用于存放第三方库的源代码，方便管理
 
 https://glad.dav1d.de/
 
-<img src="D:\_WORKSPACE\Note\assets\image-20241101210224056.png" alt="image-20241101210224056" style="zoom:50%;" />
+<img src="assets\image-20241101210224056.png" alt="image-20241101210224056" style="zoom:50%;" />
 
 将glad文件夹解压至vender/，修改tasks.json，添加包含目录和源文件glad.c的路径
 
-这里有必要解释一下GLAD的用处，因为OpenGL只是一个标准/规范，具体的实现是由驱动开发商针对特定显卡实现的。由于OpenGL驱动版本众多，它大多数函数的位置都无法在编译时确定下来，需要在运行时查询。所以任务就落在了开发者身上，开发者需要在运行时获取函数地址并将其保存在一个函数指针中供以后使用，下面是在windows中手动获取OpenGL函数的步骤：
+简单解释一下GLAD的用处，因为OpenGL只是一个标准/规范，具体的实现是由驱动开发商针对特定显卡实现的。由于OpenGL驱动版本众多，它大多数函数的位置都无法在编译时确定下来，需要在运行时查询。所以任务就落在了开发者身上，开发者需要在运行时获取函数地址并将其保存在一个函数指针中供以后使用，下面是在windows中手动获取OpenGL函数的步骤：
 
 ```c++
 #include <windows.h>
@@ -273,7 +268,7 @@ int main(void)
 ```
 
 ## 画一个正方形
-下面是一个用于绘制简单正方形的示例程序，包括创建VAO, VBO, IBO和shader，最后绑定它们并绘制两个三角形，原理部分对应LearnOpenGL的入门/你好，三角形。可以
+下面是一个用于绘制简单正方形的示例程序，你可以用它来测试环境的搭建正不正确，其中包括创建VAO, VBO, IBO和shader，最后绑定它们并绘制两个三角形。再提醒一下，LearnOpenGL中已经讲解过的内容本教程不会再赘述，例如对于下面的代码，你可以先阅读LearnOpenGL中的"入门/你好，三角形"章节
  ```c++
  // main.cpp
 #include <glad/glad.h>
@@ -507,7 +502,7 @@ int main(void)
 }
  ```
 
-Basic.shader单独存放在res/shader，注意需要将其复制到build/res/shader程序才能正常读取到：
+Basic.shader单独存放在res/shader，注意需要将其复制到build/res/shader，运行程序时才能正常读取到：
 ```
 #shader vertex
 #version 460 core
