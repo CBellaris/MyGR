@@ -18,7 +18,7 @@
 
     "tasks": [
         {
-            "label": "cmake build",
+            "label": "cmake build glfw",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -34,13 +34,42 @@
             "problemMatcher": ["$gcc"]
         },
         {
-            "label": "cmake configure",
+            "label": "cmake configure glfw",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "${workspaceFolder}\\vender\\glfw-3.4",
                 "-B",
                 "${workspaceFolder}\\vender\\glfw-3.4\\build", // 指定构建目录
+                "-G",
+                "Visual Studio 17 2022" // 指定生成器
+            ],
+            "group": "none"
+        },
+        {
+            "label": "cmake build assimp",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}\\vender\\assimp\\build", // 指向构建目录
+                "--config",
+                "Debug" // 或 "Release"，根据需要
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "cmake configure assimp",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "${workspaceFolder}\\vender\\assimp",
+                "-B",
+                "${workspaceFolder}\\vender\\assimp\\build", // 指定构建目录
                 "-G",
                 "Visual Studio 17 2022" // 指定生成器
             ],
@@ -81,12 +110,21 @@
                 "/I${workspaceFolder}\\vender\\glfw-3.4\\include",
                 "/I${workspaceFolder}\\vender\\glad\\include",
                 "/I${workspaceFolder}\\vender\\stb_image",
+                "/I${workspaceFolder}\\vender\\assimp\\include",
+                "/I${workspaceFolder}\\vender\\assimp\\build\\include",
+                "/I${workspaceFolder}\\vender\\json\\single_include",
+                "/I${workspaceFolder}\\vender\\imgui",
+                "/I${workspaceFolder}\\vender\\imgui\\backends",
                 "${workspaceFolder}\\src\\*.cpp", // 源文件
-                "${workspaceFolder}\\vender\\glad\\src\\glad.c", // 库源文件
-                "${workspaceFolder}\\vender\\stb_image\\stb_image.cpp", // 库源文件
+                "${workspaceFolder}\\vender\\glad\\src\\glad.c", // glad库源文件
+                "${workspaceFolder}\\vender\\stb_image\\stb_image.cpp", // stb_image库源文件
+                "${workspaceFolder}\\vender\\imgui\\*.cpp", // imgui库源文件
+                "${workspaceFolder}\\vender\\imgui\\backends\\imgui_impl_glfw.cpp", // imgui库源文件
+                "${workspaceFolder}\\vender\\imgui\\backends\\imgui_impl_opengl3.cpp", // imgui库源文件
                 "/MDd", // 使用动态链接库(uncheck reason)
                 "/link", // 链接库
                 "${workspaceFolder}\\vender\\glfw-3.4\\build\\src\\Debug\\glfw3.lib", 
+                "${workspaceFolder}\\vender\\assimp\\build\\lib\\Debug\\assimp-vc143-mtd.lib", 
                 // 必须的Window SDK库
                 "gdi32.lib",
                 "user32.lib",

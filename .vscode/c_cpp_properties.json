@@ -4,7 +4,11 @@
             "name": "Win64", // 根据需要调整
             "includePath": [
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/vender/**"
+                "${workspaceFolder}/vender/**",
+                "${workspaceFolder}/vender/assimp/include",
+                "${workspaceFolder}/vender/json/single_include",
+                "${workspaceFolder}/vender/imgui",
+                "${workspaceFolder}/vender/imgui/backends"
                 //"${workspaceFolder}/**" // 可选：用于递归查找
             ],
             "defines": [

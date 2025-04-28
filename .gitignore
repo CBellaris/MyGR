@@ -1,0 +1,8 @@
+vender/
+build/
+res/*.png
+res/*.jpg
+res/*.jpeg
+res/*.hdr
+res/*.tga
+res/*.fbx

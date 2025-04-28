@@ -1,4 +1,6 @@
 #include "Camera.h"
+#include "Shader.h"
+#include "GlobalSettings.h"
 
 Camera::Camera() : 
     pos(glm::vec3(0.0f, 0.0f, 1.0f)), 
@@ -6,13 +8,19 @@ Camera::Camera() :
     up(glm::vec3(0.0f, 1.0f, 0.0f)), 
     lockTarget(false),
     fov(45.0f),
-    aspectRatio(4.0f / 3.0f),
+    aspectRatio(16.0f / 9.0f),
     nearPlane(0.1f),
-    farPlane(100.0f),
+    farPlane(50.0f),
     orthographic(false),
-    cameraSpeed(0.2f),
+    cameraSpeed(0.8f),
     cameraSensitivity(0.3f)
 {
+    aspectRatio = (float)GlobalSettings::getInstance().GetInt("SCREEN_WIDTH") / (float)GlobalSettings::getInstance().GetInt("SCREEN_HEIGHT");
+
+    cameraUBO = new UBO (sizeof(glm::mat4)+sizeof(glm::vec3), 0); // 创建 UBO（存储一个 mat4和一个vec3）, 绑定点 0
+    cameraUBO->PushData(viewProjectionMatrix);
+    cameraUBO->PushData(pos);
+
     direction = glm::normalize(pos - target);
     cameraRight = glm::normalize(glm::cross(up, direction));
     cameraRight = glm::cross(direction, cameraRight);
@@ -22,14 +30,13 @@ Camera::Camera() :
 
 Camera::~Camera()
 {
+    delete cameraUBO;
 }
-
-
-
 
 void Camera::setCameraPosition(const glm::vec3& newPos)
 {
     pos = newPos;
+    cameraUBO->UpdateData(&pos, sizeof(glm::vec3), sizeof(glm::mat4));
     if (lockTarget)
     {
         direction = glm::normalize(target - pos);
@@ -88,13 +95,13 @@ void Camera::setProjectionMode(bool useOrthographic)
 void Camera::processKey(bool Press_W, bool Press_A, bool Press_S, bool Press_D, float deltaTime)
 {
     if (Press_W)
-        pos += cameraSpeed * deltaTime * direction;
+        setCameraPosition(pos + cameraSpeed * deltaTime * direction);
     if (Press_A)
-        pos += cameraSpeed * deltaTime * cameraRight;
+        setCameraPosition(pos + cameraSpeed * deltaTime * cameraRight);
     if (Press_S)
-        pos -= cameraSpeed * deltaTime * direction;
+        setCameraPosition(pos - cameraSpeed * deltaTime * direction);
     if (Press_D)
-        pos -= cameraSpeed * deltaTime * cameraRight;
+        setCameraPosition(pos - cameraSpeed * deltaTime * cameraRight);
     updateViewMatrix();
 }
 
@@ -131,4 +138,5 @@ void Camera::updateProjectionMatrix()
 void Camera::updataViewProjectionMatrix()
 {
     viewProjectionMatrix = projectionMatrix * viewMatrix;
+    cameraUBO->UpdateData(&viewProjectionMatrix, sizeof(glm::mat4), 0);
 }

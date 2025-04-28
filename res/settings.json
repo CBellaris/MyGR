@@ -1,0 +1,13 @@
+{
+    "bool": {
+        "FLIP_VERTICAL_ON_LOAD": true
+    },
+    "float": {},
+    "int": {
+        "MAX_OBJECT_TEXTURE_SLOTS": 10,
+        "MAX_SHADOW_MAP_TEXTURE_SLOTS": 4,
+        "MAX_TEXTURE_SLOTS_EACH_TYPE": 1,
+        "SCREEN_HEIGHT": 1080,
+        "SCREEN_WIDTH": 1920
+    }
+}

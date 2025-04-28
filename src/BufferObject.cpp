@@ -70,7 +70,7 @@ void VertexArrayObject::addIndexBuffer(const std::vector<unsigned int>& data)
 
 void VertexArrayObject::setLayout()
 {
-    const std::vector<BufferLayoutElement>& elements = m_Layout.getElement();
+    const std::vector<BufferLayoutElement>& elements = m_Layout.get_element();
     unsigned int offset = 0;
     for(int i = 0; i < elements.size(); i++)
     {
@@ -78,7 +78,7 @@ void VertexArrayObject::setLayout()
         // 启用属性
         glEnableVertexAttribArray(i);
         // 指定属性的格式(第几个属性，包含几个数据，数据类型，是否标准化，一个顶点的步长，到下一个属性的指针)
-        glVertexAttribPointer(i, element.count, element.type, element.normalized, m_Layout.getStride(), (const void*)offset);
+        glVertexAttribPointer(i, element.count, element.type, element.normalized, m_Layout.get_stride(), (const void*)(uintptr_t)offset);
         offset += sizeof(element.type) * element.count;
     }
 }
